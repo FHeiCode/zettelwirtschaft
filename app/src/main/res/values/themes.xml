@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Zettelwirtschaft" parent="android:Theme.Material.Light.NoActionBar" />
-    <color name="ic_launcher_background">#2E7D5B</color>
+    <style name="Theme.Zettelwirtschaft" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Papierfarbe schon beim Start, kein weißes Aufblitzen -->
+        <item name="android:windowBackground">@color/paper</item>
+    </style>
 </resources>

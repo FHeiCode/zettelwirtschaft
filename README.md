@@ -37,12 +37,12 @@ base64 -w0 release.jks > release.jks.b64     # macOS: base64 -i release.jks
 
 Im Repo unter *Settings → Secrets and variables → Actions* anlegen:
 
-| Secret                      | Inhalt                       |
-| --------------------------- | ---------------------------- |
-| `ANDROID_KEYSTORE_BASE64`   | Inhalt von `release.jks.b64` |
-| `ANDROID_KEYSTORE_PASSWORD` | Keystore-Passwort            |
-| `ANDROID_KEY_ALIAS`         | `zettelwirtschaft`           |
-| `ANDROID_KEY_PASSWORD`      | Schlüssel-Passwort           |
+| Secret | Inhalt |
+|---|---|
+| `ANDROID_KEYSTORE_BASE64` | Inhalt von `release.jks.b64` |
+| `ANDROID_KEYSTORE_PASSWORD` | Keystore-Passwort |
+| `ANDROID_KEY_ALIAS` | `zettelwirtschaft` |
+| `ANDROID_KEY_PASSWORD` | Schlüssel-Passwort |
 
 `release.jks` sicher aufbewahren – ohne denselben Schlüssel lassen sich Updates nicht über die installierte App installieren.
 

@@ -56,7 +56,10 @@ object CsvExport {
 fun formatAmount(cents: Long, withSymbol: Boolean = true): String {
     val sign = if (cents < 0) "-" else ""
     val abs = kotlin.math.abs(cents)
-    val s = String.format(java.util.Locale.ROOT, "%s%d,%02d", sign, abs / 100, abs % 100)
+    // In der App mit Tausenderpunkt (1.234,56 €), in der CSV ohne (1234,56)
+    val euros = if (withSymbol) String.format(java.util.Locale.GERMAN, "%,d", abs / 100)
+                else (abs / 100).toString()
+    val s = String.format(java.util.Locale.ROOT, "%s%s,%02d", sign, euros, abs % 100)
     return if (withSymbol) "$s €" else s
 }
 

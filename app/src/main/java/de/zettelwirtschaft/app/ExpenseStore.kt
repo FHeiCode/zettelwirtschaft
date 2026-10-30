@@ -45,6 +45,12 @@ class ExpenseStore(context: Context) {
         save(all() + Expense(System.currentTimeMillis(), date, purpose.trim(), cents))
     }
 
+    /** Gelöschten Eintrag wiederherstellen (für „Rückgängig“) */
+    @Synchronized
+    fun restore(e: Expense) {
+        if (all().none { it.id == e.id }) save(all() + e)
+    }
+
     @Synchronized
     fun delete(id: Long) {
         save(all().filterNot { it.id == id })
