@@ -35,16 +35,16 @@ object CsvExport {
     }
 
     /** Standard-Android-Teilen-Dialog (Mail, Messenger, Drive, …) */
-    fun shareIntent(context: Context, file: File): Intent {
+    fun shareIntent(context: Context, file: File, mime: String = "text/csv"): Intent {
         val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
         val send = Intent(Intent.ACTION_SEND).apply {
-            type = "text/csv"
+            type = mime
             putExtra(Intent.EXTRA_STREAM, uri)
             putExtra(Intent.EXTRA_SUBJECT, "Ausgaben ${file.nameWithoutExtension.substringAfter('_')}")
             clipData = ClipData.newRawUri(file.name, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        return Intent.createChooser(send, "CSV teilen")
+        return Intent.createChooser(send, "Ausgaben teilen")
     }
 
     private fun escape(s: String): String =

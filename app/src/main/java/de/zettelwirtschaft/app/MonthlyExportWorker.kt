@@ -38,14 +38,15 @@ class MonthlyExportWorker(ctx: Context, params: WorkerParameters) : CoroutineWor
         if (!previous.isAfter(last)) return Result.success()
 
         if (ExpenseStore(applicationContext).forMonth(previous).isNotEmpty()) {
-            val file = CsvExport.create(applicationContext, previous)
-            notify(file, previous)
+            val csv = CsvExport.create(applicationContext, previous)
+            val xlsx = XlsxExport.create(applicationContext, previous)
+            notify(csv, xlsx, previous)
         }
         prefs.edit().putString(KEY_LAST, previous.toString()).apply()
         return Result.success()
     }
 
-    private fun notify(file: java.io.File, month: YearMonth) {
+    private fun notify(csv: java.io.File, xlsx: java.io.File, month: YearMonth) {
         val ctx = applicationContext
         if (Build.VERSION.SDK_INT >= 33 &&
             ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS)
@@ -57,16 +58,19 @@ class MonthlyExportWorker(ctx: Context, params: WorkerParameters) : CoroutineWor
             NotificationChannel(CHANNEL, "Monats-Export", NotificationManager.IMPORTANCE_DEFAULT)
         )
         val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        val share = PendingIntent.getActivity(ctx, 1, CsvExport.shareIntent(ctx, file), flags)
+        val shareCsv = PendingIntent.getActivity(ctx, 1, CsvExport.shareIntent(ctx, csv), flags)
+        val shareXlsx = PendingIntent.getActivity(
+            ctx, 2, CsvExport.shareIntent(ctx, xlsx, XlsxExport.MIME), flags
+        )
         val open = PendingIntent.getActivity(ctx, 0, Intent(ctx, MainActivity::class.java), flags)
 
         val n = NotificationCompat.Builder(ctx, CHANNEL)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Ausgaben ${monthLabel(month)}")
-            .setContentText("CSV ist fertig – zum Teilen tippen")
-            .setContentIntent(share)
-            .addAction(0, "Teilen", share)
-            .addAction(0, "App öffnen", open)
+            .setContentText("Monatsliste ist fertig – als Excel oder CSV teilen")
+            .setContentIntent(open)
+            .addAction(0, "Excel teilen", shareXlsx)
+            .addAction(0, "CSV teilen", shareCsv)
             .setAutoCancel(true)
             .build()
         NotificationManagerCompat.from(ctx).notify(month.hashCode(), n)

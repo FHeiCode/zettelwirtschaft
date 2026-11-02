@@ -3,8 +3,9 @@
 Minimalistische Android-App zum Erfassen von Ausgaben – nur **Datum, Zweck, Betrag**.
 
 - Ausgaben erfassen, nach Monat ansehen, Summe pro Monat, Einträge löschen
-- **„CSV teilen“** erzeugt jederzeit die CSV des angezeigten Monats und öffnet den normalen Android-Teilen-Dialog (Mail, Messenger, Drive, Nextcloud …)
-- **Automatisch einmal im Monat:** Am Monatsanfang wird die CSV des Vormonats erstellt und per Benachrichtigung zum Teilen angeboten (nur wenn es Einträge gibt)
+- **„Teilen“** erzeugt die Liste des angezeigten Monats wahlweise als **Excel (.xlsx)** oder **CSV** und öffnet den normalen Android-Teilen-Dialog (Mail, Messenger, Drive, Nextcloud …)
+- **Automatisch einmal im Monat:** Am Monatsanfang werden Excel- und CSV-Datei des Vormonats erstellt und per Benachrichtigung zum Teilen angeboten (nur wenn es Einträge gibt)
+- Die Excel-Datei enthält echte Datums- und Zahlenwerte, Euro-Format, fixierte Kopfzeile und eine Summenformel
 - Daten bleiben lokal auf dem Gerät, keine Internet-Berechtigung
 
 CSV-Format (öffnet direkt in deutschem Excel/LibreOffice):

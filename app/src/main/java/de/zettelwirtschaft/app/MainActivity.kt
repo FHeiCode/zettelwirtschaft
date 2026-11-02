@@ -144,9 +144,13 @@ fun AppScreen() {
                 expenses = expenses,
                 onPrev = { month = month.minusMonths(1) },
                 onNext = { month = month.plusMonths(1) },
-                onShare = {
+                onShareCsv = {
                     val file = CsvExport.create(context, month)
                     context.startActivity(CsvExport.shareIntent(context, file))
+                },
+                onShareExcel = {
+                    val file = XlsxExport.create(context, month)
+                    context.startActivity(CsvExport.shareIntent(context, file, XlsxExport.MIME))
                 },
             )
 
@@ -185,7 +189,8 @@ private fun ReceiptHeader(
     expenses: List<Expense>,
     onPrev: () -> Unit,
     onNext: () -> Unit,
-    onShare: () -> Unit,
+    onShareCsv: () -> Unit,
+    onShareExcel: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
     val total = expenses.sumOf { it.cents }
@@ -204,12 +209,26 @@ private fun ReceiptHeader(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("ZETTELWIRTSCHAFT", style = LabelCaps, color = colors.onSurfaceVariant,
                     modifier = Modifier.weight(1f))
-                AssistChip(
-                    onClick = onShare,
-                    enabled = expenses.isNotEmpty(),
-                    label = { Text("CSV teilen") },
-                    leadingIcon = { Icon(Icons.Filled.Share, null, Modifier.size(18.dp)) },
-                )
+                // Teilen-Knopf mit Auswahl: Excel oder CSV
+                var menuOpen by remember { mutableStateOf(false) }
+                Box {
+                    AssistChip(
+                        onClick = { menuOpen = true },
+                        enabled = expenses.isNotEmpty(),
+                        label = { Text("Teilen") },
+                        leadingIcon = { Icon(Icons.Filled.Share, null, Modifier.size(18.dp)) },
+                    )
+                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                        DropdownMenuItem(
+                            text = { Text("Als Excel (.xlsx)") },
+                            onClick = { menuOpen = false; onShareExcel() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Als CSV") },
+                            onClick = { menuOpen = false; onShareCsv() },
+                        )
+                    }
+                }
             }
 
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp)) {
