@@ -104,6 +104,9 @@ fun AppScreen() {
     }
 
     var showSheet by remember { mutableStateOf(false) }
+    var showQr by remember { mutableStateOf(false) }
+    // Gibt es (in irgendeinem Monat) noch nicht abgerechnete Ausgaben?
+    val hasOpen = remember(refresh) { store.open().isNotEmpty() }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     fun delete(e: Expense) {
@@ -152,6 +155,8 @@ fun AppScreen() {
                     val file = XlsxExport.create(context, month)
                     context.startActivity(CsvExport.shareIntent(context, file, XlsxExport.MIME))
                 },
+                onShowQr = { showQr = true },
+                hasOpen = hasOpen,
             )
 
             if (expenses.isEmpty()) {
@@ -160,6 +165,10 @@ fun AppScreen() {
                 ExpenseList(expenses, onDelete = { delete(it) }, modifier = Modifier.weight(1f))
             }
         }
+    }
+
+    if (showQr) {
+        TransferQrDialog(onDismiss = { showQr = false; refresh++ })
     }
 
     if (showSheet) {
@@ -191,6 +200,8 @@ private fun ReceiptHeader(
     onNext: () -> Unit,
     onShareCsv: () -> Unit,
     onShareExcel: () -> Unit,
+    onShowQr: () -> Unit,
+    hasOpen: Boolean,
 ) {
     val colors = MaterialTheme.colorScheme
     val total = expenses.sumOf { it.cents }
@@ -214,7 +225,7 @@ private fun ReceiptHeader(
                 Box {
                     AssistChip(
                         onClick = { menuOpen = true },
-                        enabled = expenses.isNotEmpty(),
+                        enabled = expenses.isNotEmpty() || hasOpen,
                         label = { Text("Teilen") },
                         leadingIcon = { Icon(Icons.Filled.Share, null, Modifier.size(18.dp)) },
                     )
@@ -222,10 +233,19 @@ private fun ReceiptHeader(
                         DropdownMenuItem(
                             text = { Text("Als Excel (.xlsx)") },
                             onClick = { menuOpen = false; onShareExcel() },
+                            enabled = expenses.isNotEmpty(),
                         )
                         DropdownMenuItem(
                             text = { Text("Als CSV") },
                             onClick = { menuOpen = false; onShareCsv() },
+                            enabled = expenses.isNotEmpty(),
+                        )
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = { Text("Überweisungs-QR-Code") },
+                            onClick = { menuOpen = false; onShowQr() },
+                            // Nur, wenn es noch offene (nicht abgerechnete) Ausgaben gibt
+                            enabled = hasOpen,
                         )
                     }
                 }
@@ -422,12 +442,20 @@ private fun ExpenseRow(e: Expense, shape: Shape) {
                 )
             }
             Spacer(Modifier.width(14.dp))
-            Text(
-                e.purpose,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1, overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
+            Column(Modifier.weight(1f)) {
+                Text(
+                    e.purpose,
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                )
+                e.settled?.let {
+                    Text(
+                        "✓ abgerechnet am ${it.format(dateFmt)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
             Spacer(Modifier.width(12.dp))
             Text(
                 formatAmount(e.cents),

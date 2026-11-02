@@ -6,6 +6,7 @@ Minimalistische Android-App zum Erfassen von Ausgaben – nur **Datum, Zweck, Be
 - **„Teilen“** erzeugt die Liste des angezeigten Monats wahlweise als **Excel (.xlsx)** oder **CSV** und öffnet den normalen Android-Teilen-Dialog (Mail, Messenger, Drive, Nextcloud …)
 - **Automatisch einmal im Monat:** Am Monatsanfang werden Excel- und CSV-Datei des Vormonats erstellt und per Benachrichtigung zum Teilen angeboten (nur wenn es Einträge gibt)
 - Die Excel-Datei enthält echte Datums- und Zahlenwerte, Euro-Format, fixierte Kopfzeile und eine Summenformel
+- **Abrechnen per Überweisungs-QR-Code (GiroCode)** über „Teilen“: Alle noch offenen Ausgaben (auch monatsübergreifend) werden zusammengefasst; unter dem Code stehen Zeitraum und Betrag. Banking-Apps lesen ihn per Foto-Überweisung. Nach einer Bestätigung gelten die Ausgaben als abgerechnet, sind in der Liste markiert und kommen in keinen weiteren QR-Code. Name und IBAN des Empfängers werden einmal eingegeben (mit IBAN-Prüfung). Der Code lässt sich auch als Bild verschicken.
 - Daten bleiben lokal auf dem Gerät, keine Internet-Berechtigung
 
 CSV-Format (öffnet direkt in deutschem Excel/LibreOffice):

@@ -13,6 +13,8 @@ data class Expense(
     val purpose: String,
     /** Betrag in Cent, um Rundungsfehler zu vermeiden */
     val cents: Long,
+    /** Datum der Abrechnung per QR-Code; null = noch offen */
+    val settled: LocalDate? = null,
 )
 
 /**
@@ -33,6 +35,7 @@ class ExpenseStore(context: Context) {
                 date = LocalDate.parse(o.getString("date")),
                 purpose = o.getString("purpose"),
                 cents = o.getLong("cents"),
+                settled = o.optString("settled").takeIf { it.isNotEmpty() }?.let(LocalDate::parse),
             )
         }.sortedWith(compareByDescending<Expense> { it.date }.thenByDescending { it.id })
     }
@@ -43,6 +46,15 @@ class ExpenseStore(context: Context) {
     @Synchronized
     fun add(date: LocalDate, purpose: String, cents: Long) {
         save(all() + Expense(System.currentTimeMillis(), date, purpose.trim(), cents))
+    }
+
+    /** Alle noch nicht abgerechneten Ausgaben, älteste zuerst */
+    fun open(): List<Expense> = all().filter { it.settled == null }.sortedBy { it.date }
+
+    /** Markiert Ausgaben als abgerechnet – sie erscheinen in keinem weiteren QR-Code. */
+    @Synchronized
+    fun markSettled(ids: Set<Long>, on: LocalDate) {
+        save(all().map { if (it.id in ids && it.settled == null) it.copy(settled = on) else it })
     }
 
     /** Gelöschten Eintrag wiederherstellen (für „Rückgängig“) */
@@ -65,6 +77,7 @@ class ExpenseStore(context: Context) {
                     .put("date", it.date.toString())
                     .put("purpose", it.purpose)
                     .put("cents", it.cents)
+                    .apply { it.settled?.let { d -> put("settled", d.toString()) } }
             )
         }
         // Erst in Temp-Datei schreiben, dann umbenennen: kein Datenverlust bei Absturz
